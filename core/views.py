@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from .models import Product
 
+from .models import UserProfile
 def home(request):
     return render(request, 'core/home.html')
 
@@ -14,7 +16,13 @@ def admin_login(request):
 
 @login_required
 def user_dashboard(request):
-    return render(request, 'core/dashboard.html')
+    profile = UserProfile.objects.get(user=request.user)  # Fetch user profile
+    products = Product.objects.all()
+    return render(request, 'core/dashboard.html', {
+        'products': products,
+        'user': request.user,
+        'profile': profile  # 👈 This is what you're missing
+    })
 
 
 
@@ -50,16 +58,11 @@ def admin_login(request):
 
 
 
-from .models import Product
-
-@login_required
-def user_dashboard(request):
-    products = Product.objects.all()
-    return render(request, 'core/dashboard.html', {'products': products})
 
 
-
+from .models import UserProfile
 from django.contrib.auth.models import User
+
 
 def user_register(request):
     if request.method == "POST":
@@ -67,6 +70,11 @@ def user_register(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
+        full_name = request.POST.get("full_name")
+        phone = request.POST.get("phone")
+        state = request.POST.get("state")
+        district = request.POST.get("district")
+        photo = request.FILES.get("photo")
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
@@ -77,12 +85,21 @@ def user_register(request):
             return redirect('register')
 
         user = User.objects.create_user(username=username, email=email, password=password)
-        user.save()
+
+        UserProfile.objects.create(
+            user=user,
+            full_name=full_name,
+            phone=phone,
+            mail=email,
+            state=state,
+            district=district,
+            photo=photo
+        )
+
         messages.success(request, "Registration successful. Please log in.")
         return redirect('login')
 
     return render(request, 'core/register.html')
-
 
 from django.contrib.auth import logout
 
@@ -99,4 +116,8 @@ from django.shortcuts import render
 
 @login_required
 def user_details(request):
-    return render(request, 'core/user_details.html', {'user': request.user})
+    profile = UserProfile.objects.get(user=request.user)
+    return render(request, 'core/user_details.html', {
+        'user': request.user,
+        'profile': profile
+    })
