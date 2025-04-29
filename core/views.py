@@ -91,3 +91,12 @@ def user_logout(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect('login')
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+@login_required
+def user_details(request):
+    return render(request, 'core/user_details.html', {'user': request.user})
