@@ -16,12 +16,13 @@ def admin_login(request):
 
 @login_required
 def user_dashboard(request):
-    profile = UserProfile.objects.get(user=request.user)  # Fetch user profile
-    products = Product.objects.all()
+    profile = UserProfile.objects.get(user=request.user)
+    today = timezone.now().date()
+    products = Product.objects.filter(close_date__gte=today).order_by('-id')
     return render(request, 'core/dashboard.html', {
         'products': products,
         'user': request.user,
-        'profile': profile  # 👈 This is what you're missing
+        'profile': profile
     })
 
 
@@ -129,9 +130,12 @@ def user_details(request):
 
 
 from .forms import ProductForm
+from django.utils import timezone
 
 def product_list(request):
-    products = Product.objects.all()
+    today = timezone.now().date()
+    products = Product.objects.filter(close_date__gte=today).order_by('-id')
+
     return render(request, 'products/product_list.html', {'products': products})
 
 def add_product(request):
@@ -139,7 +143,24 @@ def add_product(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('product_list')
+            messages.success(request, "Product added successfully.")
+            return redirect('add_product')
+        else:
+            messages.error(request, "Failed to add product. Please check the form.")
     else:
         form = ProductForm()
-    return render(request, 'products/add_product.html', {'form': form})
+
+    products = Product.objects.all().order_by('-id')  # Fetch products to list
+    return render(request, 'products/add_product.html', {
+        'form': form,
+        'products': products
+    })
+
+
+from django.shortcuts import get_object_or_404
+
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    messages.success(request, "Product deleted successfully.")
+    return redirect('add_product')

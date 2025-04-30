@@ -1,11 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
-    <h1>Welcome to Admin Dashboard</h1>
-    <p>This is the admin panel homepage.</p>
-</body>
-</html>
-<a href="/logout" style="display: block; margin-top: 20px;">Log Out</a>
+{% extends 'core/base.html' %}
+
+{% block title %}User Login{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 bg-light p-4">
+            <h4>Dashboard</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'add_product' %}">➕ Add Product</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_details' %}">👤 User Details</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 p-4">
+            <h2>Welcome, {{ user.username }}</h2>
+            <p>Email: {{ user.email }}</p>
+            <!-- Add more user info or page content here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
