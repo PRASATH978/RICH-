@@ -50,7 +50,7 @@ def admin_login(request):
 
         if user is not None and user.is_staff:
             login(request, user)
-            return redirect('/admin/')  # Redirect to Django admin
+            return render(request, 'admin_dashboard/admin_dashboard.html')  # Redirect to Django admin
         else:
             messages.error(request, "Invalid credentials or not an admin account.")
     return render(request, 'core/admin_login.html')
