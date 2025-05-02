@@ -44,21 +44,17 @@ def user_login(request):
 
 
 def admin_login(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
+        if request.method == "POST":
+            username = request.POST.get("username")
+            password = request.POST.get("password")
+            user = authenticate(request, username=username, password=password)
 
-        if user is not None and user.is_staff:
-            login(request, user)
-            return render(request, 'admin_dashboard/admin_dashboard.html')  # Redirect to Django admin
-        else:
-            messages.error(request, "Invalid credentials or not an admin account.")
-    return render(request, 'core/admin_login.html')
-
-
-
-
+            if user is not None and user.is_staff:
+                login(request, user)
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, "Invalid credentials or not an admin account.")
+        return render(request, 'core/admin_login.html')
 
 
 from .models import UserProfile
@@ -139,6 +135,7 @@ def product_list(request):
     return render(request, 'products/product_list.html', {'products': products})
 
 def add_product(request):
+    
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -164,3 +161,29 @@ def delete_product(request, product_id):
     product.delete()
     messages.success(request, "Product deleted successfully.")
     return redirect('add_product')
+
+
+
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from .models import Product  # Replace with your actual app name and model
+
+def is_admin(user):
+    return user.is_superuser  # Or use groups/permissions
+
+# ✅ Admin dashboard
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    total_users = User.objects.count()
+    total_products = Product.objects.count()
+    products = Product.objects.all().order_by('-id')[:10]
+    users = User.objects.all().order_by('-id')[:10]
+    
+    context = {
+        'total_users': total_users,
+        'total_products': total_products,
+        'products': products,
+        'users': users,
+    }
+    return render(request, 'admindashboard/dashboard.html', context)
