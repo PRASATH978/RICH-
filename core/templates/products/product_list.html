@@ -1,0 +1,26 @@
+
+{% for product in page_obj %}
+      <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body bg-light">
+            <strong>Product Name:</strong> {{ product.name }}<br>
+            <img src="{{ product.image.url }}" class="img-fluid my-2" alt="Product Image">
+            <p class="card-text">
+              <strong>Price:</strong> ₹{{ product.price }}<br>
+              <strong>NYE Price:</strong> ₹{{ product.nye_price }}<br>
+            </p>
+            <button class="btn btn-primary btn-sm">Buy Now</button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Pagination Controls -->
+  <div class="d-flex justify-content-center my-4">
+    <div class="pagination">
+      <span class="page-link">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Previous</a>{% else %}Previous{% endif %}</span>
+      <span class="page-link">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next</a>{% else %}Next{% endif %}</span>
+    </div>
+  </div>
+  

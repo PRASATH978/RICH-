@@ -11,7 +11,7 @@ class Product(models.Model):
     nye_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     gain_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Adjust default as necessary
     def __str__(self):
-        return self.name
+        return self.name 
 
 
 # models.py

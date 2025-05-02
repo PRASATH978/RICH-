@@ -1,33 +1,17 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from .models import Product
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.utils import timezone
 
-from .models import UserProfile
+from .models import Product, UserProfile
+from .forms import ProductForm
+
+
 def home(request):
     return render(request, 'core/home.html')
 
-def user_login(request):
-    # we'll add login logic later
-    return render(request, 'core/login.html')
-
-def admin_login(request):
-    return render(request, 'core/admin_login.html')
-
-@login_required
-def user_dashboard(request):
-    profile = UserProfile.objects.get(user=request.user)
-    today = timezone.now().date()
-    products = Product.objects.filter(close_date__gte=today).order_by('-id')
-    return render(request, 'core/dashboard.html', {
-        'products': products,
-        'user': request.user,
-        'profile': profile
-    })
-
-
-
-from django.contrib import messages
 
 def user_login(request):
     if request.method == "POST":
@@ -44,21 +28,17 @@ def user_login(request):
 
 
 def admin_login(request):
-        if request.method == "POST":
-            username = request.POST.get("username")
-            password = request.POST.get("password")
-            user = authenticate(request, username=username, password=password)
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
 
-            if user is not None and user.is_staff:
-                login(request, user)
-                return redirect('admin_dashboard')
-            else:
-                messages.error(request, "Invalid credentials or not an admin account.")
-        return render(request, 'core/admin_login.html')
-
-
-from .models import UserProfile
-from django.contrib.auth.models import User
+        if user is not None and user.is_staff:
+            login(request, user)
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, "Invalid credentials or not an admin account.")
+    return render(request, 'core/admin_login.html')
 
 
 def user_register(request):
@@ -98,7 +78,18 @@ def user_register(request):
 
     return render(request, 'core/register.html')
 
-from django.contrib.auth import logout
+
+@login_required
+def user_dashboard(request):
+    profile = UserProfile.objects.get(user=request.user)
+    today = timezone.now().date()
+    products = Product.objects.filter(close_date__gte=today).order_by('-id')
+    return render(request, 'core/dashboard.html', {
+        'products': products,
+        'user': request.user,
+        'profile': profile
+    })
+
 
 @login_required
 def user_logout(request):
@@ -106,10 +97,6 @@ def user_logout(request):
     messages.success(request, "You have been logged out.")
     return redirect('login')
 
-
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 
 @login_required
 def user_details(request):
@@ -120,22 +107,57 @@ def user_details(request):
     })
 
 
-
-
-
-
-
-from .forms import ProductForm
-from django.utils import timezone
-
 def product_list(request):
     today = timezone.now().date()
     products = Product.objects.filter(close_date__gte=today).order_by('-id')
-
     return render(request, 'products/product_list.html', {'products': products})
 
+
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    messages.success(request, "Product deleted successfully.")
+    return redirect('add_product')
+
+
+def is_admin(user):
+    return user.is_superuser
+
+
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    total_users = User.objects.count()
+    total_products = Product.objects.count()
+    products = Product.objects.all().order_by('-id')[:10]
+    users = User.objects.all().order_by('-id')[:10]
+
+    context = {
+        'total_users': total_users,
+        'total_products': total_products,
+        'products': products,
+        'users': users,
+    }
+    return render(request, 'admindashboard/base.html', context)
+
+
+@user_passes_test(is_admin)
+def admindashboard(request):
+    total_users = User.objects.count()
+    total_products = Product.objects.count()
+    products = Product.objects.all().order_by('-id')[:10]
+    users = User.objects.all().order_by('-id')[:10]
+
+    context = {
+        'total_users': total_users,
+        'total_products': total_products,
+        'products': products,
+        'users': users,
+    }
+    return render(request, 'admindashboard/dashboard.html', context)
+
+
+@user_passes_test(is_admin)
 def add_product(request):
-    
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -147,60 +169,43 @@ def add_product(request):
     else:
         form = ProductForm()
 
-    products = Product.objects.all().order_by('-id')  # Fetch products to list
+    products = Product.objects.all().order_by('-id')
     return render(request, 'products/add_product.html', {
         'form': form,
         'products': products
     })
 
 
-from django.shortcuts import get_object_or_404
-
-def delete_product(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    product.delete()
-    messages.success(request, "Product deleted successfully.")
-    return redirect('add_product')
+def add_product_view(request):
+    if request.method == 'POST':
+        messages.success(request, 'Product added successfully!')
+        return redirect('add_product')
+    return render(request, 'your_template.html')
 
 
 
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib import messages
+
+def some_view(request):
+    try:
+        # Some operation that could fail
+        some_data = get_some_data()
+    except Exception as e:
+        messages.error(request, "Something went wrong: " + str(e))
+        return redirect('error_page')
+    return render(request, 'template.html', {'data': some_data})
+
+
+
+from django.core.paginator import Paginator
 from django.shortcuts import render
-from django.contrib.auth.models import User
-from .models import Product  # Replace with your actual app name and model
+from .models import Product
 
-def is_admin(user):
-    return user.is_superuser  # Or use groups/permissions
+def product_list(request):
+    product_list = Product.objects.all()  # Or apply filters as needed
+    paginator = Paginator(product_list, 6)  # Show 6 products per page
 
-# ✅ Admin dashboard
-@user_passes_test(is_admin)
-def admin_dashboard(request):
-    total_users = User.objects.count()
-    total_products = Product.objects.count()
-    products = Product.objects.all().order_by('-id')[:10]
-    users = User.objects.all().order_by('-id')[:10]
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
-    context = {
-        'total_users': total_users,
-        'total_products': total_products,
-        'products': products,
-        'users': users,
-    }
-    return render(request, 'admindashboard/base.html', context)
-
-
-
-@user_passes_test(is_admin)
-def dashboard(request):
-    total_users = User.objects.count()
-    total_products = Product.objects.count()
-    products = Product.objects.all().order_by('-id')[:10]
-    users = User.objects.all().order_by('-id')[:10]
-    
-    context = {
-        'total_users': total_users,
-        'total_products': total_products,
-        'products': products,
-        'users': users,
-    }
-    return render(request, 'admindashboard/dashboard.html', context)
+    return render(request, 'products/product_list.html', {'page_obj': page_obj})
