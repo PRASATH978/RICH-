@@ -1,4 +1,4 @@
-<!-- core/base.html -->
+<!-- templates/core/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +12,9 @@
         <nav class="bg-dark text-white vh-100 p-3" style="width: 250px;">
             <h4 class="text-center">Admin Panel</h4>
             <ul class="nav flex-column mt-4">
+                <li class="nav-item">
+                    <a href="#" class="nav-link text-white" onclick="loadContent('{% url 'admin_dashboard' %}')">Dashboard</a>
+                </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link text-white" onclick="loadContent('{% url 'add_product' %}')">Add Product</a>
                 </li>
@@ -30,10 +33,20 @@
 
     <script>
         function loadContent(url) {
+            const content = document.getElementById("main-content");
+            content.innerHTML = '<div class="text-center my-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
             fetch(url)
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
                 .then(html => {
-                    document.getElementById("main-content").innerHTML = html;
+                    content.innerHTML = html;
+                })
+                .catch(error => {
+                    content.innerHTML = `<div class="alert alert-danger">Error loading content: ${error}</div>`;
                 });
         }
     </script>
