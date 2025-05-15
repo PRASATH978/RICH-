@@ -209,3 +209,11 @@ def product_list(request):
     page_obj = paginator.get_page(page_number)
     
     return render(request, 'products/product_list.html', {'page_obj': page_obj})
+
+
+from django.contrib.auth.models import User
+
+@login_required
+def user_details(request):
+    users = User.objects.all()
+    return render(request, 'core/user_details.html', {'users': users})
