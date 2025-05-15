@@ -191,7 +191,7 @@ def user_update(request, user_id):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            return redirect('user_list')
+            return redirect('user_details')
     else:
         user_form = UserForm(instance=user)
         profile_form = UserProfileForm(instance=profile)
@@ -206,7 +206,7 @@ def user_update(request, user_id):
 def user_delete(request, user_id):
     user = get_object_or_404(User, id=user_id)
     user.delete()
-    return redirect('user_list')
+    return redirect('user_details')
 
 
 # ---------- USER PROFILE VIEW ----------
