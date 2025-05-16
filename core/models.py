@@ -7,11 +7,12 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     open_date = models.DateField(default=date.today)
-    close_date = models.DateField(default=date.today)   # You can adjust this based on your logic
+    close_date = models.DateField(default=date.today)
     nye_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    gain_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Adjust default as necessary
+    gain_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
     def __str__(self):
-        return self.name 
+        return self.name
 
 
 # models.py
@@ -29,7 +30,6 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-
 
 
 from django.db.models.signals import post_save

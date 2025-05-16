@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 
 from .models import Product, UserProfile
 from .forms import ProductForm, UserForm, UserProfileForm
+from django.db import IntegrityError
 
 
 def home(request):
@@ -67,16 +68,19 @@ def user_register(request):
             messages.error(request, "Username already exists.")
             return redirect('register')
 
+        # Create user
         user = User.objects.create_user(username=username, email=email, password=password)
-        UserProfile.objects.create(
-            user=user,
-            full_name=full_name,
-            phone=phone,
-            mail=email,
-            state=state,
-            district=district,
-            photo=photo
-        )
+
+        # Update the profile created by post_save signal
+        profile = user.userprofile
+        profile.full_name = full_name
+        profile.phone = phone
+        profile.mail = email
+        profile.state = state
+        profile.district = district
+        if photo:
+            profile.photo = photo
+        profile.save()
 
         messages.success(request, "Registration successful. Please log in.")
         return redirect('login')
@@ -210,9 +214,6 @@ def user_delete(request, user_id):
 
 
 # ---------- USER PROFILE VIEW ----------
-
-
-
 
 @user_passes_test(lambda u: u.is_superuser)
 def user_details(request):
