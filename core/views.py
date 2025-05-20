@@ -219,3 +219,22 @@ def user_delete(request, user_id):
 def user_details(request):
     users = User.objects.all().select_related('userprofile')
     return render(request, 'core/user_details.html', {'users': users})
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def payment_success(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        product_id = data.get("product_id")
+        payment_id = data.get("payment_id")
+        
+        # TODO: You can save this to the DB
+        print("Payment Success!", product_id, payment_id)
+
+        return JsonResponse({"status": "success"})
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)

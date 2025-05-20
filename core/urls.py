@@ -20,4 +20,7 @@ urlpatterns = [
     path('users/create/', views.user_create, name='user_create'),
     path('users/edit/<int:user_id>/', views.user_update, name='user_update'),
     path('users/delete/<int:user_id>/', views.user_delete, name='user_delete'),
+    # urls.py
+path("payment-success/", views.payment_success, name="payment-success"),
+
 ]
