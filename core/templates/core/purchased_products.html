@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+{% block title %}My Purchases{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Your Purchased Products</h3>
+<div class="row">
+  {% if purchases %}
+    {% for purchase in purchases %}
+      <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body bg-light">
+            <strong>{{ purchase.product.name }}</strong><br>
+            <img src="{{ purchase.product.image.url }}" class="img-fluid my-2" alt="{{ purchase.product.name }}">
+            <p class="card-text">
+              <strong>Price:</strong> ₹{{ purchase.product.price }}<br>
+              <strong>Purchased On:</strong> {{ purchase.purchase_date|date:"F d, Y" }}
+
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>You have not purchased any products yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

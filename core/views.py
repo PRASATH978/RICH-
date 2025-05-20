@@ -68,11 +68,15 @@ def user_register(request):
             messages.error(request, "Username already exists.")
             return redirect('register')
 
-        # Create user
-        user = User.objects.create_user(username=username, email=email, password=password)
+        try:
+            # Create user
+            user = User.objects.create_user(username=username, email=email, password=password)
+        except IntegrityError:
+            messages.error(request, "A user with that username or email already exists.")
+            return redirect('register')
 
-        # Update the profile created by post_save signal
-        profile = user.userprofile
+        # Get or create the profile in case the signal is not set up
+        profile, created = UserProfile.objects.get_or_create(user=user)
         profile.full_name = full_name
         profile.phone = phone
         profile.mail = email
@@ -225,16 +229,49 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Product, Purchase  # Adjust based on your models
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 @csrf_exempt
 def payment_success(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        product_id = data.get("product_id")
-        payment_id = data.get("payment_id")
-        
-        # TODO: You can save this to the DB
-        print("Payment Success!", product_id, payment_id)
+        try:
+            data = json.loads(request.body)
+            product_id = data.get("product_id")
+            payment_id = data.get("payment_id")
 
-        return JsonResponse({"status": "success"})
-    
-    return JsonResponse({"error": "Invalid request"}, status=400)
+            if not request.user.is_authenticated:
+                return JsonResponse({"status": "error", "error": "User not authenticated"}, status=403)
+
+            product = Product.objects.get(id=product_id)
+
+            # Save purchase record
+            Purchase.objects.create(
+                user=request.user,
+                product=product,
+                payment_id=payment_id
+            )
+
+            return JsonResponse({"status": "success"})
+
+        except Product.DoesNotExist:
+            return JsonResponse({"status": "error", "error": "Product not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": "error", "error": str(e)}, status=500)
+
+    return JsonResponse({"status": "error", "error": "Invalid request method"}, status=405)
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Purchase  # Assuming a Purchase model exists
+
+@login_required
+def purchased_products(request):
+    purchases = Purchase.objects.filter(user=request.user).select_related('product')
+    return render(request, 'core/purchased_products.html', {'purchases': purchases})

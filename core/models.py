@@ -1,5 +1,6 @@
 from django.db import models
-from datetime import date 
+from datetime import date
+from django.contrib.auth.models import User
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -14,10 +15,14 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+class Purchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=100)
+    purchase_date = models.DateTimeField(auto_now_add=True)
 
-# models.py
-from django.db import models
-from django.contrib.auth.models import User
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} ({self.payment_id})"
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -30,14 +35,3 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
-
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import User
-from .models import UserProfile
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
