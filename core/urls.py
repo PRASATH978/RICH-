@@ -27,4 +27,6 @@ path("payment-success/", views.payment_success, name="payment_success"),
 
  path('purchases/', views.purchased_products, name='purchased_products'),
 
+  path('my-purchases/', views.my_purchases, name='my_purchases'),
+
 ]

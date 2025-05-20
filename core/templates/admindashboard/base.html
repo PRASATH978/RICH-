@@ -46,6 +46,13 @@
                     <li class="nav-item">
                         <a href="{% url 'user_details' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'user_details' %}active bg-secondary{% endif %}">User Details</a>
                     </li>
+                    <li class="nav-item">
+    <a href="{% url 'my_purchases' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'my_purchases' %}active bg-secondary{% endif %}">
+        My Purchases
+    </a>
+</li>
+
+                    
                 </ul>
             </div>
 

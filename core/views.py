@@ -275,3 +275,13 @@ from .models import Purchase  # Assuming a Purchase model exists
 def purchased_products(request):
     purchases = Purchase.objects.filter(user=request.user).select_related('product')
     return render(request, 'core/purchased_products.html', {'purchases': purchases})
+
+
+from django.contrib.auth.decorators import user_passes_test
+
+@user_passes_test(lambda u: u.is_superuser)
+def my_purchases(request):
+    purchases = Purchase.objects.select_related('user', 'product').order_by('-purchase_date')
+    return render(request, 'core/my_purchases.html', {'purchases': purchases})
+
+
