@@ -7,102 +7,52 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #0f9b0f 0%, #38ef7d 50%, #ffd700 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
+            background: #f8f9fa;
         }
-        .glass-card {
-            border-radius: 2.5rem;
-            background: rgba(255,255,255,0.92);
-            box-shadow: 0 16px 48px 0 rgba(34, 139, 34, 0.18), 0 4px 16px rgba(255, 215, 0, 0.10);
-            border: 2px solid #d4af37;
-            backdrop-filter: blur(12px);
-            transition: transform 0.25s, box-shadow 0.25s;
+        .simple-card {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 2rem 2.5rem;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
         }
-        .glass-card:hover {
-            transform: translateY(-8px) scale(1.04);
-            box-shadow: 0 24px 72px 0 rgba(34, 139, 34, 0.22), 0 8px 32px rgba(255, 215, 0, 0.14);
+        .simple-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #198754;
         }
-        .btn-custom {
-            background: linear-gradient(90deg, #43cea2 0%, #0f9b0f 60%, #ffd700 100%);
+        .simple-btn {
+            background: #198754;
             color: #fff;
             border: none;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            box-shadow: 0 2px 16px rgba(67, 206, 162, 0.18);
-            border-radius: 2rem;
-            transition: background 0.3s, box-shadow 0.2s;
+            border-radius: 1.5rem;
+            font-weight: 600;
         }
-        .btn-custom:hover {
-            background: linear-gradient(90deg, #ffd700 0%, #0f9b0f 60%, #43cea2 100%);
-            color: #fff;
-            box-shadow: 0 6px 24px rgba(15, 155, 15, 0.18);
+        .simple-btn:hover {
+            background: #157347;
         }
-        .welcome-icon {
-            font-size: 4.5rem;
-            color: #ffd700;
-            text-shadow: 0 2px 12px #0f9b0f55;
-            animation: sparkle 1.5s infinite alternate;
-        }
-        @keyframes sparkle {
-            0% { filter: brightness(1); }
-            100% { filter: brightness(1.4); }
-        }
-        .card-title {
-            font-size: 2.7rem;
-            font-weight: 900;
-            letter-spacing: 3px;
-            color: #0f9b0f;
-            text-shadow: 0 2px 12px #ffd70033;
-        }
-        .card-text {
-            color: #333;
-            font-size: 1.25rem;
-            margin-bottom: 1.7rem;
-        }
-        .link-primary, .link-secondary {
+        .simple-link {
+            color: #198754;
             text-decoration: none;
-            transition: color 0.2s;
         }
-        .link-primary {
-            color: #0f9b0f;
-        }
-        .link-secondary {
-            color: #ffd700;
-        }
-        .link-primary:hover, .link-secondary:hover {
+        .simple-link:hover {
             text-decoration: underline;
-            color: #38ef7d;
-        }
-        .divider {
-            width: 70px;
-            height: 5px;
-            background: linear-gradient(90deg, #43cea2 0%, #0f9b0f 60%, #ffd700 100%);
-            border-radius: 3px;
-            margin: 0.7rem auto 1.7rem auto;
         }
     </style>
-    <!-- Bootstrap Icons CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-        <div class="glass-card p-5 text-center shadow-lg">
-            <div class="mb-3">
-                <i class="bi bi-cash-coin welcome-icon"></i>
-            </div>
-            <h2 class="mb-1 card-title">Welcome</h2>
-            <div class="divider"></div>
-            <p class="card-text">Join us and start your journey to wealth!<br>Unlock exclusive features and grow your fortune with our community.</p>
-            <a href="{% url 'register' %}" class="btn btn-custom btn-lg mb-4 w-100 shadow-sm">Register</a>
-            <div class="mb-2">
-                <span>Already have an account?</span>
-                <a href="{% url 'login' %}" class="link-primary fw-semibold">Login here</a>
-            </div>
-            <div>
-                <span>Admin login:</span>
-                <a href="{% url 'admin_login' %}" class="link-secondary fw-semibold">Login here</a>
-            </div>
+    <div class="simple-card text-center shadow">
+        <h2 class="simple-title mb-3">Welcome</h2>
+        <p class="mb-4">Join us and start your journey to wealth!</p>
+        <a href="{% url 'register' %}" class="btn simple-btn btn-lg w-100 mb-3">Register</a>
+        <div class="mb-2">
+            <span>Already have an account?</span>
+            <a href="{% url 'login' %}" class="simple-link fw-semibold">Login here</a>
+        </div>
+        <div>
+            <span>Admin login:</span>
+            <a href="{% url 'admin_login' %}" class="simple-link fw-semibold">Login here</a>
         </div>
     </div>
     <!-- Bootstrap JS CDN (optional) -->
